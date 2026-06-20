@@ -1,6 +1,7 @@
 {
-  "name": "sistema-envios",
+  "name": "sistema-envios-android-pc",
   "version": "1.0.0",
+  "description": "Sistema de control de envios con JSON, firma digital, PDF y reporte semanal.",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"

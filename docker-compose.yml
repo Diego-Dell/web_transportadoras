@@ -1,0 +1,22 @@
+services:
+  sistema-envios:
+    image: ghcr.io/diego-dell/web_transportadoras:latest
+    container_name: sistema-envios
+    restart: always
+    ports:
+      - "14400:3000"
+    env_file:
+      - .env
+    volumes:
+      - ./data:/app/data
+      - ./uploads:/app/uploads
+    labels:
+      - "com.centurylinklabs.watchtower.enable=true"
+
+  watchtower:
+    image: containrrr/watchtower
+    container_name: watchtower-sistema-envios
+    restart: always
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    command: --interval 60 --cleanup --label-enable
