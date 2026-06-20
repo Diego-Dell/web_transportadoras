@@ -105,6 +105,14 @@ function requireAuth(req, res, next) {
   next();
 }
 
+function requireDriver(req, res, next) {
+  if (!req.session.user) return res.status(401).json({ error: 'No autorizado' });
+  if (req.session.user.username !== 'kevin1' && req.session.user.role !== 'driver') {
+    return res.status(403).json({ error: 'Solo Kevin puede usar el modo al volante' });
+  }
+  next();
+}
+
 app.get('/health', (req, res) => res.json({ ok: true, app: process.env.APP_NAME || 'Sistema de Envios' }));
 
 app.post('/api/login', async (req, res) => {
@@ -149,6 +157,12 @@ app.post('/api/transportadoras', requireAuth, (req, res) => {
   else items.push({ nombre, telefono: body.telefono || '', direccion: body.direccion || '', maps: body.maps || '', departamento: body.departamento || '' });
   writeJson(files.transportadoras, items);
   res.json({ ok: true, items });
+});
+
+app.get('/api/driver/envios', requireDriver, (req, res) => {
+  let envios = readJson(files.envios, []);
+  envios = envios.filter(e => e.estado !== 'entregado');
+  res.json(envios.sort((a, b) => String(a.createdAt).localeCompare(String(b.createdAt))));
 });
 
 app.get('/api/envios', requireAuth, (req, res) => {
@@ -209,7 +223,7 @@ app.patch('/api/envios/:id', requireAuth, (req, res) => {
   res.json({ ok: true, envio: envios[idx] });
 });
 
-app.post('/api/envios/:id/entregar', requireAuth, (req, res) => {
+app.post('/api/envios/:id/entregar', requireDriver, (req, res) => {
   const envios = readJson(files.envios, []);
   const idx = envios.findIndex(e => e.id === req.params.id);
   if (idx < 0) return res.status(404).json({ error: 'Envio no encontrado' });
