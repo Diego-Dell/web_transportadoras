@@ -1,0 +1,72 @@
+[
+  {
+    "nombre": "El Mexicano",
+    "telefono": "",
+    "direccion": "Av. Intermodal Sucre / Terminal Bimodal",
+    "maps": "",
+    "departamento": "Sucre"
+  },
+  {
+    "nombre": "Auto Transportes Tupiza I",
+    "telefono": "63777533",
+    "direccion": "Av. Intermodal esquina Hernando Siles, Barrio Villa Victoria, Bodega 2, Santa Cruz",
+    "maps": "",
+    "departamento": "Tarija"
+  },
+  {
+    "nombre": "AmazonExpress SRL",
+    "telefono": "",
+    "direccion": "Av. Intermodal y Calle Hernando Siles, Hotel Emperador, Santa Cruz",
+    "maps": "",
+    "departamento": "Cochabamba"
+  },
+  {
+    "nombre": "Transportes Lupiana",
+    "telefono": "",
+    "direccion": "Av. Uruguay, Zona Avaroa",
+    "maps": "",
+    "departamento": "Cochabamba"
+  },
+  {
+    "nombre": "Transporte La Querida S.R.L.",
+    "telefono": "",
+    "direccion": "Av. Interradial y Daniel Salamanca",
+    "maps": "",
+    "departamento": "Yacuiba"
+  },
+  {
+    "nombre": "Trans Divino Niño SCZ TDD S.R.L.",
+    "telefono": "78029649",
+    "direccion": "Santa Cruz / Trinidad",
+    "maps": "",
+    "departamento": "Beni"
+  },
+  {
+    "nombre": "Linea Sindical Chino Bus",
+    "telefono": "",
+    "direccion": "Av. Parque Industrial liviano, Terminal A, Santa Cruz",
+    "maps": "",
+    "departamento": "Santa Cruz"
+  },
+  {
+    "nombre": "El Dorado",
+    "telefono": "",
+    "direccion": "Terminal Intermodal, Santa Cruz",
+    "maps": "",
+    "departamento": "La Paz"
+  },
+  {
+    "nombre": "M.E.M. 1",
+    "telefono": "",
+    "direccion": "Intermodal / Beijing",
+    "maps": "",
+    "departamento": "Cochabamba"
+  },
+  {
+    "nombre": "Linea Sindical Flota Cosmos",
+    "telefono": "79913728",
+    "direccion": "Canada / Terminal",
+    "maps": "",
+    "departamento": "Santa Cruz"
+  }
+]

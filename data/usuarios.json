@@ -1,0 +1,65 @@
+[
+  {
+    "id": "USR-20260620192301-M5Q79",
+    "username": "kamil",
+    "pinHash": "$2a$10$5QnWnsDTLI3vf6bVkh6CRe3XHVbmow3xGoL.PjFAMXauV3xjAV5WC",
+    "role": "worker",
+    "active": true,
+    "createdAt": "2026-06-20T19:23:02.042Z",
+    "updatedAt": "2026-06-20T19:23:02.042Z"
+  },
+  {
+    "id": "USR-20260620192302-EEHTF",
+    "username": "soledad",
+    "pinHash": "$2a$10$pDNqp2HmROtMiGfBd0HycO8UnZ6IsKK39ZKizrQKHMt0.fr53tPCq",
+    "role": "worker",
+    "active": true,
+    "createdAt": "2026-06-20T19:23:02.112Z",
+    "updatedAt": "2026-06-20T19:23:02.112Z"
+  },
+  {
+    "id": "USR-20260620192302-CDROX",
+    "username": "dell",
+    "pinHash": "$2a$10$0mWK4CMDEBj4CfS6Hfk/1eVyDrBL0rTZOJi17fLZwh7VtcT6ZlpNe",
+    "role": "worker",
+    "active": true,
+    "createdAt": "2026-06-20T19:23:02.183Z",
+    "updatedAt": "2026-06-20T19:23:02.183Z"
+  },
+  {
+    "id": "USR-20260620192302-SXY4M",
+    "username": "mikela",
+    "pinHash": "$2a$10$81DUqw4sqtCZHYYNXVi9nuLwF07mCxns3iDy55MG2lSnYTdx69e2C",
+    "role": "worker",
+    "active": true,
+    "createdAt": "2026-06-20T19:23:02.253Z",
+    "updatedAt": "2026-06-20T19:23:02.253Z"
+  },
+  {
+    "id": "USR-20260620192302-FRH6V",
+    "username": "benjamin",
+    "pinHash": "$2a$10$471IR.9WTbt/GEEAP59zi.sjZtSWWxomq8AFCcB8RimBIuKGq9X1.",
+    "role": "worker",
+    "active": true,
+    "createdAt": "2026-06-20T19:23:02.323Z",
+    "updatedAt": "2026-06-20T19:23:02.323Z"
+  },
+  {
+    "id": "USR-20260620192302-NOX3C",
+    "username": "rodrigo",
+    "pinHash": "$2a$10$5bzlky3TvIA9VmcklFvui.d6tL4jD6ZFxfogQ8zteEKINTJhhmlty",
+    "role": "worker",
+    "active": true,
+    "createdAt": "2026-06-20T19:23:02.393Z",
+    "updatedAt": "2026-06-20T19:23:02.393Z"
+  },
+  {
+    "id": "USR-20260620192302-LZR86",
+    "username": "Kevin",
+    "pinHash": "$2a$10$2wI4pBVGIzV0QWbM6VAF.OYzuqmjGlhUlexEC3NuYFuSSLh4fH5VG",
+    "role": "driver",
+    "active": true,
+    "createdAt": "2026-06-20T19:23:02.462Z",
+    "updatedAt": "2026-06-20T19:23:02.462Z"
+  }
+]

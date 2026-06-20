@@ -1,0 +1,13 @@
+.git
+.github
+node_modules
+npm-debug.log*
+.env
+.env.*
+!.env.example
+data/*
+!data/.gitkeep
+uploads/*
+!uploads/.gitkeep
+*.zip
+.DS_Store
