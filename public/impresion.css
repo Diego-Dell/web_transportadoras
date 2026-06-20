@@ -18,50 +18,79 @@ body { background: var(--surface); color: var(--ink); min-height: 100vh; }
 .form-sticky { top: 92px; }
 .preview-panel { background: #fff; box-shadow: 0 12px 34px rgba(15,23,42,.08); padding: 1.25rem; }
 .label-frame { padding: 12px; border-radius: 16px; background: linear-gradient(145deg, #e7ecef, #f9fafb); border: 1px solid #d8e0e5; overflow: hidden; }
-.label-canvas { position: relative; width: 100%; aspect-ratio: 1755 / 1241; overflow: hidden; background: white; box-shadow: 0 8px 25px rgba(15,23,42,.12); }
-.label-template { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; user-select: none; pointer-events: none; }
+.label-canvas {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1755 / 1241;
+  overflow: hidden;
+  background: #fff;
+  box-shadow: 0 8px 25px rgba(15,23,42,.12);
+  isolation: isolate;
+}
+.label-template {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  user-select: none;
+  pointer-events: none;
+}
 .dynamic-name,
 .dynamic-phone,
-.dynamic-city { position: absolute; z-index: 2; color: #000; line-height: .92; }
+.dynamic-city {
+  position: absolute;
+  z-index: 2;
+  overflow: hidden;
+  text-transform: uppercase;
+}
 .dynamic-name {
-  left: 17.5%;
-  top: 26.2%;
-  width: 65%;
-  height: 17.5%;
+  left: 18.2%;
+  top: 28.2%;
+  width: 63.6%;
+  height: 22.2%;
   display: flex;
   align-items: center;
   justify-content: center;
   text-align: center;
   white-space: pre-line;
-  text-transform: uppercase;
-  font-family: "Cormorant Garamond", Georgia, serif;
-  font-weight: 600;
-  letter-spacing: -.015em;
+  color: #000;
+  font-family: "Cormorant Garamond", Georgia, "Times New Roman", serif;
+  font-weight: 500;
+  line-height: .88;
+  letter-spacing: -.02em;
+  padding: 0 1.2%;
 }
 .dynamic-phone {
-  left: 29.5%;
-  top: 45.3%;
-  width: 57%;
+  left: 36.4%;
+  top: 52.7%;
+  width: 57.3%;
+  height: 10.2%;
+  display: flex;
+  align-items: center;
   white-space: nowrap;
-  text-transform: uppercase;
-  font-family: "Cormorant Garamond", Georgia, serif;
-  font-weight: 600;
+  color: #000;
+  font-family: "Cormorant Garamond", Georgia, "Times New Roman", serif;
+  font-weight: 500;
   line-height: 1;
+  letter-spacing: .015em;
 }
 .dynamic-city {
-  left: 34%;
-  top: 55.2%;
-  width: 36%;
-  height: 9.5%;
+  left: 31.5%;
+  top: 63.1%;
+  width: 57%;
+  height: 15.2%;
   display: flex;
   align-items: center;
   justify-content: center;
   text-align: center;
+  white-space: nowrap;
   color: #2413cc;
-  text-transform: uppercase;
-  font-family: "Bangers", Impact, sans-serif;
+  font-family: "Bangers", Impact, "Arial Black", sans-serif;
+  line-height: .9;
   letter-spacing: .02em;
   transform: rotate(-1deg);
+  padding: 0 1%;
 }
 .info-card { height: 100%; padding: .9rem 1rem; border-radius: 13px; border: 1px solid #e1e7eb; background: #fbfcfd; display: flex; flex-direction: column; gap: .3rem; }
 .info-card strong { color: var(--muted); text-transform: uppercase; letter-spacing: .07em; font-size: .7rem; }
@@ -79,8 +108,16 @@ body { background: var(--surface); color: var(--ink); min-height: 100vh; }
 
 @media print {
   @page { size: A4 landscape; margin: 0; }
-  body { background: white; }
+  html, body { margin: 0 !important; padding: 0 !important; background: #fff !important; }
   .print-navbar, .print-hero, .form-card, .preview-panel > :not(.label-frame), .loading-overlay { display: none !important; }
-  main, .container-xl, .row, .col-lg-8, .preview-panel, .label-frame { margin: 0 !important; padding: 0 !important; width: 100% !important; max-width: none !important; border: 0 !important; box-shadow: none !important; background: white !important; }
+  main, .container-xl, .row, .col-lg-8, .preview-panel, .label-frame {
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+    max-width: none !important;
+    border: 0 !important;
+    box-shadow: none !important;
+    background: #fff !important;
+  }
   .label-canvas { width: 297mm !important; height: 210mm !important; box-shadow: none !important; }
 }

@@ -19,41 +19,53 @@
 
   function splitName(value) {
     const name = upper(value) || 'NOMBRE DEL CLIENTE';
-    if (name.length <= 25) return name;
+    if (name.length <= 21) return name;
+
     const words = name.split(' ');
     if (words.length < 2) return name;
+
     let bestIndex = 1;
-    let bestDifference = Infinity;
-    for (let i = 1; i < words.length; i++) {
+    let bestScore = Number.POSITIVE_INFINITY;
+    for (let i = 1; i < words.length; i += 1) {
       const first = words.slice(0, i).join(' ');
       const second = words.slice(i).join(' ');
-      const difference = Math.abs(first.length - second.length);
-      if (difference < bestDifference) {
-        bestDifference = difference;
+      const longest = Math.max(first.length, second.length);
+      const balance = Math.abs(first.length - second.length);
+      const score = longest * 2 + balance;
+      if (score < bestScore) {
+        bestScore = score;
         bestIndex = i;
       }
     }
     return `${words.slice(0, bestIndex).join(' ')}\n${words.slice(bestIndex).join(' ')}`;
   }
 
+  function fitText(element, startSize, minimumSize, step = 1) {
+    let size = startSize;
+    element.style.fontSize = `${size}px`;
+    while (
+      size > minimumSize &&
+      (element.scrollWidth > element.clientWidth + 1 || element.scrollHeight > element.clientHeight + 1)
+    ) {
+      size -= step;
+      element.style.fontSize = `${size}px`;
+    }
+  }
+
   function resizeTypography() {
     const width = labelCanvas.getBoundingClientRect().width;
     if (!width) return;
-    const rawName = upper(nombreInput.value);
-    const lineCount = splitName(rawName).includes('\n') ? 2 : 1;
-    let nameRatio = lineCount === 2 ? 0.047 : 0.052;
-    if (rawName.length > 42) nameRatio = 0.042;
-    if (rawName.length > 50) nameRatio = 0.038;
-    previewName.style.fontSize = `${width * nameRatio}px`;
 
-    const phoneLength = digits(telefonoInput.value).length;
-    previewPhone.style.fontSize = `${width * (phoneLength > 10 ? 0.038 : 0.047)}px`;
+    const nameText = previewName.textContent || '';
+    const nameLines = nameText.includes('\n') ? 2 : 1;
+    fitText(previewName, width * (nameLines === 2 ? 0.054 : 0.060), width * 0.032, 0.5);
 
-    const cityLength = upper(ciudadInput.value).length;
-    let cityRatio = 0.064;
-    if (cityLength > 12) cityRatio = 0.052;
-    if (cityLength > 20) cityRatio = 0.043;
-    previewCity.style.fontSize = `${width * cityRatio}px`;
+    const phoneLength = digits(telefonoInput.value).length || 8;
+    fitText(previewPhone, width * (phoneLength > 10 ? 0.042 : 0.048), width * 0.032, 0.5);
+
+    const cityLength = upper(ciudadInput.value).length || 6;
+    const cityStart = cityLength > 18 ? width * 0.052 : cityLength > 11 ? width * 0.061 : width * 0.071;
+    fitText(previewCity, cityStart, width * 0.037, 0.5);
   }
 
   function updatePreview() {
@@ -68,7 +80,15 @@
     summaryName.textContent = name || 'Sin completar';
     summaryPhone.textContent = phone ? `+591 ${phone}` : 'Sin completar';
     summaryCity.textContent = city || 'Sin completar';
-    resizeTypography();
+
+    requestAnimationFrame(resizeTypography);
+  }
+
+  function loadFromQuery() {
+    const params = new URLSearchParams(window.location.search);
+    if (params.has('nombre')) nombreInput.value = params.get('nombre') || '';
+    if (params.has('telefono')) telefonoInput.value = digits(params.get('telefono'));
+    if (params.has('ciudad')) ciudadInput.value = params.get('ciudad') || '';
   }
 
   function validate() {
@@ -103,7 +123,7 @@
   async function renderCanvas() {
     await waitReady();
     return html2canvas(labelCanvas, {
-      scale: 2.5,
+      scale: 3,
       useCORS: true,
       backgroundColor: '#ffffff',
       logging: false,
@@ -139,7 +159,7 @@
       const canvas = await renderCanvas();
       const { jsPDF } = window.jspdf;
       const pdf = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4', compress: true });
-      pdf.addImage(canvas.toDataURL('image/jpeg', 0.96), 'JPEG', 0, 0, 297, 210, undefined, 'FAST');
+      pdf.addImage(canvas.toDataURL('image/jpeg', 0.98), 'JPEG', 0, 0, 297, 210, undefined, 'FAST');
       pdf.save(filename('pdf'));
     } catch (error) {
       console.error(error);
@@ -172,7 +192,7 @@
       const dataUrl = canvas.toDataURL('image/png');
       const printWindow = window.open('', '_blank');
       if (!printWindow) throw new Error('Ventana bloqueada');
-      printWindow.document.write(`<!doctype html><html><head><title>Imprimir nota</title><style>@page{size:A4 landscape;margin:0}html,body{margin:0;width:100%;height:100%;overflow:hidden}img{display:block;width:297mm;height:210mm;object-fit:cover}</style></head><body><img src="${dataUrl}" onload="setTimeout(()=>window.print(),250)"></body></html>`);
+      printWindow.document.write(`<!doctype html><html><head><title>Imprimir nota</title><style>@page{size:A4 landscape;margin:0}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#fff}img{display:block;width:297mm;height:210mm;object-fit:contain}</style></head><body><img src="${dataUrl}" onload="setTimeout(()=>window.print(),300)"></body></html>`);
       printWindow.document.close();
     } catch (error) {
       console.error(error);
@@ -199,7 +219,7 @@
         const phone = digits(telefonoInput.value);
         const waUrl = `https://wa.me/591${phone}?text=${encodeURIComponent(`${text}\nLa imagen se descargó en tu dispositivo; adjúntala en este chat.`)}`;
         window.open(waUrl, '_blank', 'noopener');
-        shareHelp.textContent = 'Tu navegador no permite adjuntar archivos directamente. La nota se descargó como PNG y se abrió el chat del cliente para que la adjuntes.';
+        shareHelp.textContent = 'La nota se descargó como PNG y se abrió el chat del cliente para adjuntarla.';
         shareHelp.classList.remove('d-none');
       }
     } catch (error) {
@@ -224,5 +244,8 @@
   [nombreInput, telefonoInput, ciudadInput].forEach(input => input.addEventListener('input', updatePreview));
   telefonoInput.addEventListener('input', () => { telefonoInput.value = digits(telefonoInput.value); });
   new ResizeObserver(resizeTypography).observe(labelCanvas);
-  window.addEventListener('load', updatePreview);
+  window.addEventListener('load', () => {
+    loadFromQuery();
+    updatePreview();
+  });
 })();

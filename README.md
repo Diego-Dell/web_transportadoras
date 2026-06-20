@@ -14,7 +14,6 @@ Usuarios iniciales con PIN `123456`:
 
 El modo al volante esta habilitado solamente para `Kevin`.
 
+## Corrección de impresión v4
 
-## Módulo de impresión
-
-La herramienta de nota de envío está disponible en `/impresion.html`. Permite editar nombre, teléfono y ciudad, descargar PDF/PNG, imprimir y compartir por WhatsApp.
+La plantilla de impresión fue limpiada para evitar textos duplicados. El nombre, teléfono y ciudad se renderizan una sola vez, con ajuste automático de tamaño y máximo de dos líneas para el nombre.
