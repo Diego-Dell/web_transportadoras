@@ -61,7 +61,7 @@
     fitText(previewName, width * (nameLines === 2 ? 0.054 : 0.060), width * 0.032, 0.5);
 
     const phoneLength = digits(telefonoInput.value).length || 8;
-    fitText(previewPhone, width * (phoneLength > 10 ? 0.042 : 0.048), width * 0.032, 0.5);
+    fitText(previewPhone, width * (phoneLength > 10 ? 0.046 : 0.052), width * 0.034, 0.5);
 
     const cityLength = upper(ciudadInput.value).length || 6;
     const cityStart = cityLength > 18 ? width * 0.052 : cityLength > 11 ? width * 0.061 : width * 0.071;

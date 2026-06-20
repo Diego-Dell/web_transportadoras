@@ -68,12 +68,15 @@ body { background: var(--surface); color: var(--ink); min-height: 100vh; }
   height: 10.2%;
   display: flex;
   align-items: center;
+  justify-content: center;
+  text-align: center;
   white-space: nowrap;
   color: #000;
   font-family: "Cormorant Garamond", Georgia, "Times New Roman", serif;
   font-weight: 500;
-  line-height: 1;
-  letter-spacing: .015em;
+  line-height: .88;
+  letter-spacing: -.02em;
+  padding: 0 1.2%;
 }
 .dynamic-city {
   left: 31.5%;
@@ -85,6 +88,7 @@ body { background: var(--surface); color: var(--ink); min-height: 100vh; }
   justify-content: center;
   text-align: center;
   white-space: nowrap;
+  overflow: hidden;
   color: #2413cc;
   font-family: "Bangers", Impact, "Arial Black", sans-serif;
   line-height: .9;

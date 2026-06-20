@@ -54,6 +54,94 @@ function onlyDigits(v = '') {
   return String(v).replace(/\D/g, '');
 }
 
+const mapPreviewCache = new Map();
+
+function isAllowedMapHost(hostname = '') {
+  const host = String(hostname).toLowerCase();
+  return host === 'goo.gl' || host === 'maps.app.goo.gl' || host === 'maps.google.com' || host === 'www.google.com' || host.endsWith('.google.com');
+}
+
+function extractMapQuery(rawUrl = '') {
+  if (!rawUrl) return '';
+  try {
+    const url = new URL(rawUrl);
+    const candidates = ['q', 'query', 'destination', 'daddr', 'll'];
+    for (const key of candidates) {
+      const value = url.searchParams.get(key);
+      if (value) return decodeURIComponent(value.replace(/\+/g, ' '));
+    }
+    const decoded = decodeURIComponent(url.href);
+    let match = decoded.match(/@(-?\d+(?:\.\d+)?),(-?\d+(?:\.\d+)?)/);
+    if (match) return `${match[1]},${match[2]}`;
+    match = decoded.match(/\/place\/([^/?#]+)/i);
+    if (match) return match[1].replace(/\+/g, ' ');
+  } catch (_) {}
+  return '';
+}
+
+async function resolveMapPreview(rawUrl = '', address = '') {
+  const inputUrl = String(rawUrl || '').trim();
+  const fallbackAddress = String(address || '').trim();
+  const cacheKey = `${inputUrl}|${fallbackAddress}`;
+  if (mapPreviewCache.has(cacheKey)) return mapPreviewCache.get(cacheKey);
+
+  let finalUrl = inputUrl;
+  let query = '';
+  let warning = '';
+
+  if (inputUrl) {
+    try {
+      const parsed = new URL(inputUrl);
+      if (!isAllowedMapHost(parsed.hostname)) throw new Error('El enlace no pertenece a Google Maps');
+      query = extractMapQuery(inputUrl);
+      if (!query) {
+        const controller = new AbortController();
+        const timer = setTimeout(() => controller.abort(), 6500);
+        try {
+          const response = await fetch(inputUrl, {
+            redirect: 'follow',
+            signal: controller.signal,
+            headers: { 'User-Agent': 'Mozilla/5.0 SistemaEnvios/1.0' }
+          });
+          finalUrl = response.url || inputUrl;
+          const finalParsed = new URL(finalUrl);
+          if (!isAllowedMapHost(finalParsed.hostname)) throw new Error('Redirección de Maps no válida');
+          query = extractMapQuery(finalUrl);
+        } finally {
+          clearTimeout(timer);
+        }
+      }
+    } catch (error) {
+      warning = error.name === 'AbortError' ? 'No se pudo resolver el enlace corto a tiempo' : error.message;
+    }
+  }
+
+  query = query || fallbackAddress;
+  const result = {
+    ok: Boolean(query),
+    query,
+    openUrl: inputUrl || (query ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}` : ''),
+    resolvedUrl: finalUrl,
+    embedUrl: query ? `https://maps.google.com/maps?q=${encodeURIComponent(query)}&z=16&output=embed` : '',
+    warning
+  };
+  mapPreviewCache.set(cacheKey, result);
+  if (mapPreviewCache.size > 200) mapPreviewCache.delete(mapPreviewCache.keys().next().value);
+  return result;
+}
+
+function saveSignatureDataUrl(dataUrl, envioId) {
+  const match = String(dataUrl || '').match(/^data:image\/png;base64,([A-Za-z0-9+/=]+)$/);
+  if (!match) throw new Error('Formato de firma inválido');
+  const buffer = Buffer.from(match[1], 'base64');
+  if (buffer.length < 300) throw new Error('La firma está vacía');
+  const dir = path.join(UPLOADS_DIR, 'firmas');
+  fs.mkdirSync(dir, { recursive: true });
+  const filename = `${envioId}-${Date.now()}.png`;
+  fs.writeFileSync(path.join(dir, filename), buffer);
+  return `/uploads/firmas/${filename}`;
+}
+
 function initData() {
   if (!fs.existsSync(files.usuarios)) {
     const users = (process.env.DEFAULT_USERS || 'kamil,soledad,dell,mikela,benjamin,rodrigo,Kevin')
@@ -183,6 +271,15 @@ app.post('/api/change-pin', requireAuth, async (req, res) => {
 
 app.get('/api/transportadoras', requireAuth, (req, res) => res.json(readJson(files.transportadoras, [])));
 
+app.get('/api/maps/preview', requireAuth, async (req, res) => {
+  try {
+    const result = await resolveMapPreview(req.query.url || '', req.query.address || '');
+    res.json(result);
+  } catch (error) {
+    res.status(400).json({ error: error.message || 'No se pudo generar la vista previa' });
+  }
+});
+
 app.post('/api/transportadoras', requireAuth, (req, res) => {
   const items = readJson(files.transportadoras, []);
   const body = req.body;
@@ -263,13 +360,20 @@ app.post('/api/envios/:id/entregar', requireDriver, (req, res) => {
   const envios = readJson(files.envios, []);
   const idx = envios.findIndex(e => e.id === req.params.id);
   if (idx < 0) return res.status(404).json({ error: 'Envio no encontrado' });
-  envios[idx].estado = 'entregado';
-  envios[idx].firmaCliente = req.body.firmaCliente || '';
-  envios[idx].entregadoAt = nowIso();
-  envios[idx].entregadoPor = req.session.user.username;
-  envios[idx].updatedAt = nowIso();
-  writeJson(files.envios, envios);
-  res.json({ ok: true, envio: envios[idx] });
+  if (Number(req.body.strokeCount || 0) < 1) return res.status(400).json({ error: 'El cliente debe firmar antes de completar la entrega' });
+  try {
+    const signaturePath = saveSignatureDataUrl(req.body.firmaCliente, envios[idx].id);
+    envios[idx].estado = 'entregado';
+    envios[idx].firmaCliente = signaturePath;
+    envios[idx].firmaTrazos = Number(req.body.strokeCount || 0);
+    envios[idx].entregadoAt = nowIso();
+    envios[idx].entregadoPor = req.session.user.username;
+    envios[idx].updatedAt = nowIso();
+    writeJson(files.envios, envios);
+    res.json({ ok: true, envio: envios[idx] });
+  } catch (error) {
+    res.status(400).json({ error: error.message || 'No se pudo guardar la firma' });
+  }
 });
 
 app.get('/api/dashboard', requireAuth, (req, res) => {

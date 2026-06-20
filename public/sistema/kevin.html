@@ -1,1 +1,206 @@
-<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Modo al volante</title><link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"><link href="/sistema/styles.css" rel="stylesheet"></head><body><script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script><script src="/sistema/app.js"></script><main class="container-xl page-shell"><div class="d-flex flex-column flex-md-row justify-content-between gap-3 align-items-md-center mb-4"><div><h1 class="page-title">Modo al volante</h1><p class="page-subtitle">Vista exclusiva para Kevin. Acciones grandes para entregar rapido desde celular.</p></div><button class="btn btn-outline-dark" onclick="load()">Actualizar</button></div><div id="alertBox"></div><div id="list" class="row g-3"></div></main><div class="modal fade" id="m" tabindex="-1"><div class="modal-dialog modal-lg modal-dialog-centered"><div class="modal-content"><div class="modal-header"><div><h5 class="modal-title fw-bold">Firma digital del cliente</h5><p class="text-secondary small mb-0">El cliente firma para confirmar que recibio el pedido.</p></div><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><canvas id="firma" class="signature"></canvas></div><div class="modal-footer"><button class="btn btn-outline-secondary" id="limpiar">Limpiar</button><button class="btn btn-dark" id="confirmar">Completar entrega</button></div></div></div></div><script>let selected=null,sig=null,modal=null;authGuard().then(({user})=>{if(String(user.username).toLowerCase()!=='kevin'&&user.role!=='driver'){document.body.innerHTML='<main class="container py-5"><div class="app-card"><h2 class="fw-bold">Acceso restringido</h2><p class="text-secondary">El modo al volante esta disponible solamente para Kevin.</p><a class="btn btn-dark" href="/sistema/index.html">Volver al dashboard</a></div></main>';return}nav('kevin',user);modal=new bootstrap.Modal('#m');sig=initSignature('firma');load()});async function load(){try{const envios=await API.get('/api/driver/envios');list.innerHTML=envios.map(card).join('')||emptyState('No hay envios pendientes','Cuando se registren envios pendientes apareceran aqui.')}catch(x){alertBox.innerHTML=`<div class="alert alert-danger">${x.message}</div>`}}function card(e){const phone=e.celularCliente||e.transportadoraTelefono;const map=e.tipoEnvio==='transportadora'?e.transportadoraMaps:e.googleMaps;const dir=e.tipoEnvio==='transportadora'?e.transportadoraDireccion:e.direccionLiteral;const name=e.tipoEnvio==='transportadora'?(e.transportadoraNombre||e.cliente):e.cliente;return `<div class="col-12 col-xl-6"><div class="driver-card bg-white p-3 p-md-4"><div class="d-flex justify-content-between gap-2 align-items-start"><div><h2 class="driver-title">${name||'Sin nombre'}</h2><div class="driver-meta">${tipoLabel(e.tipoEnvio)} · ${e.destinoDepartamento||'Sin destino'}</div></div>${statusBadge(e.estado)}</div><div class="driver-data"><div class="row g-3"><div class="col-12"><b>Producto</b><span>${e.producto||'Sin producto'}</span></div><div class="col-6"><b>Cantidad</b><span>${e.cantidad||1}</span></div><div class="col-6"><b>Total</b><span>${money(e.total)}</span></div><div class="col-12"><b>Direccion</b><span>${dir||'Sin direccion'}</span></div><div class="col-12"><b>Registrado por</b><span>${e.creadoPor||''}</span></div></div></div>${map?`<div class="map-preview mb-3"><iframe loading="lazy" referrerpolicy="no-referrer-when-downgrade" src="${mapPreviewSrc(map,dir)}"></iframe></div>`:''}<div class="row g-2"><div class="col-6"><a class="btn btn-success btn-lgx w-100 ${phone?'':'disabled'}" href="${waLink(phone)}" target="_blank">WhatsApp</a></div><div class="col-6"><a class="btn btn-outline-success btn-lgx w-100 ${phone?'':'disabled'}" href="${telLink(phone)}">Llamar</a></div><div class="col-12"><a class="btn btn-primary btn-lgx w-100 ${map?'':'disabled'}" href="${mapsLink(map)}" target="_blank">Abrir Google Maps</a></div><div class="col-12"><button class="btn btn-dark btn-lgx w-100" onclick="openSign('${e.id}')">Completar con firma</button></div></div></div></div>`}function openSign(id){selected=id;sig.clear();modal.show()}limpiar.onclick=()=>sig.clear();confirmar.onclick=async()=>{try{await API.post(`/api/envios/${selected}/entregar`,{firmaCliente:sig.data()});modal.hide();toast('Entrega completada');load()}catch(x){toast(x.message,'danger')}};</script></body></html>
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Modo al volante</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="/sistema/styles.css?v=7" rel="stylesheet">
+</head>
+<body>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="/sistema/app.js?v=7"></script>
+
+<main class="container-xl page-shell">
+  <div class="d-flex flex-column flex-md-row justify-content-between gap-3 align-items-md-center mb-4">
+    <div>
+      <h1 class="page-title">Modo al volante</h1>
+      <p class="page-subtitle">Vista exclusiva para Kevin, optimizada para celular y entregas rápidas.</p>
+    </div>
+    <button class="btn btn-outline-dark" onclick="load()">Actualizar envíos</button>
+  </div>
+  <div id="alertBox"></div>
+  <div id="list" class="row g-3"></div>
+</main>
+
+<div class="modal fade" id="signatureModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered modal-fullscreen-sm-down">
+    <div class="modal-content">
+      <div class="modal-header">
+        <div>
+          <h5 class="modal-title fw-bold">Firma digital del cliente</h5>
+          <p class="text-secondary small mb-0">Entrega el celular al cliente para que firme dentro del recuadro.</p>
+        </div>
+        <button class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+      <div class="modal-body">
+        <div class="signature-panel">
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <span class="small fw-bold text-secondary">FIRMA DEL CLIENTE</span>
+            <span id="signatureStatus" class="badge text-bg-secondary">Pendiente</span>
+          </div>
+          <canvas id="firma" class="signature" aria-label="Área de firma"></canvas>
+          <div class="small text-secondary mt-2">La entrega no podrá completarse sin una firma.</div>
+        </div>
+      </div>
+      <div class="modal-footer flex-column flex-sm-row">
+        <button class="btn btn-outline-secondary w-100 w-sm-auto" id="limpiar" type="button">Limpiar firma</button>
+        <button class="btn btn-dark w-100 w-sm-auto" id="confirmar" type="button" disabled>Completar entrega</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+let selectedId = null;
+let signature = null;
+let signatureModal = null;
+let isSaving = false;
+
+const modalElement = document.getElementById('signatureModal');
+const confirmButton = document.getElementById('confirmar');
+const clearButton = document.getElementById('limpiar');
+const signatureStatus = document.getElementById('signatureStatus');
+
+function updateSignatureState(hasInk) {
+  confirmButton.disabled = !hasInk || isSaving;
+  signatureStatus.textContent = hasInk ? 'Firma registrada' : 'Pendiente';
+  signatureStatus.className = `badge ${hasInk ? 'text-bg-success' : 'text-bg-secondary'}`;
+}
+
+authGuard().then(({ user }) => {
+  if (String(user.username).toLowerCase() !== 'kevin' && user.role !== 'driver') {
+    document.body.innerHTML = `
+      <main class="container py-5">
+        <div class="app-card">
+          <h2 class="fw-bold">Acceso restringido</h2>
+          <p class="text-secondary">El modo al volante está disponible solamente para Kevin.</p>
+          <a class="btn btn-dark" href="/sistema/index.html">Volver al dashboard</a>
+        </div>
+      </main>`;
+    return;
+  }
+
+  nav('kevin', user);
+  signatureModal = new bootstrap.Modal(modalElement, { backdrop: 'static', keyboard: false });
+  signature = initSignature('firma', updateSignatureState);
+
+  modalElement.addEventListener('shown.bs.modal', () => {
+    requestAnimationFrame(() => {
+      signature.resize(false);
+      signature.clear();
+    });
+  });
+
+  modalElement.addEventListener('hidden.bs.modal', () => {
+    selectedId = null;
+    signature.clear();
+    updateSignatureState(false);
+  });
+
+  load();
+});
+
+async function load() {
+  try {
+    alertBox.innerHTML = '';
+    list.innerHTML = '<div class="col-12"><div class="app-card text-center py-5"><div class="spinner-border" role="status"></div><div class="mt-3 text-secondary">Cargando envíos pendientes</div></div></div>';
+    const envios = await API.get('/api/driver/envios');
+    list.innerHTML = envios.map(card).join('') || emptyState('No hay envíos pendientes', 'Cuando se registren envíos pendientes aparecerán aquí.');
+
+    for (const envio of envios) {
+      const mapUrl = envio.tipoEnvio === 'transportadora' ? envio.transportadoraMaps : envio.googleMaps;
+      const address = envio.tipoEnvio === 'transportadora' ? envio.transportadoraDireccion : envio.direccionLiteral;
+      if (mapUrl || address) {
+        hydrateMapPreview(document.getElementById(`map-${envio.id}`), mapUrl, address);
+      }
+    }
+  } catch (error) {
+    list.innerHTML = '';
+    alertBox.innerHTML = `<div class="alert alert-danger">${escapeHtml(error.message)}</div>`;
+  }
+}
+
+function card(envio) {
+  const phone = envio.celularCliente || envio.transportadoraTelefono;
+  const mapUrl = envio.tipoEnvio === 'transportadora' ? envio.transportadoraMaps : envio.googleMaps;
+  const address = envio.tipoEnvio === 'transportadora' ? envio.transportadoraDireccion : envio.direccionLiteral;
+  const name = envio.tipoEnvio === 'transportadora' ? (envio.transportadoraNombre || envio.cliente) : envio.cliente;
+  const openMap = mapsLink(mapUrl, address);
+  const hasLocation = Boolean(mapUrl || address);
+
+  return `
+  <div class="col-12 col-xl-6">
+    <article class="driver-card bg-white p-3 p-md-4 h-100">
+      <div class="d-flex justify-content-between gap-2 align-items-start">
+        <div>
+          <h2 class="driver-title">${escapeHtml(name || 'Sin nombre')}</h2>
+          <div class="driver-meta">${escapeHtml(tipoLabel(envio.tipoEnvio))} · ${escapeHtml(envio.destinoDepartamento || 'Sin destino')}</div>
+        </div>
+        ${statusBadge(envio.estado)}
+      </div>
+
+      <div class="driver-data">
+        <div class="row g-3">
+          <div class="col-12"><b>Producto</b><span>${escapeHtml(envio.producto || 'Sin producto')}</span></div>
+          <div class="col-6"><b>Cantidad</b><span>${escapeHtml(envio.cantidad || 1)}</span></div>
+          <div class="col-6"><b>Total</b><span>${escapeHtml(money(envio.total))}</span></div>
+          <div class="col-12"><b>Dirección</b><span>${escapeHtml(address || 'Sin dirección')}</span></div>
+          <div class="col-12"><b>Registrado por</b><span>${escapeHtml(envio.creadoPor || '')}</span></div>
+        </div>
+      </div>
+
+      ${hasLocation ? `
+        <div class="location-heading d-flex align-items-center justify-content-between mb-2">
+          <span class="fw-bold">Vista previa de ubicación</span>
+          <span class="small text-secondary">Destino</span>
+        </div>
+        <div id="map-${escapeAttr(envio.id)}" class="map-preview mb-3"></div>` : `
+        <div class="alert alert-warning py-2">Este envío no tiene dirección ni enlace de Google Maps.</div>`}
+
+      <div class="row g-2 mt-auto">
+        <div class="col-6"><a class="btn btn-success btn-lgx w-100 ${phone ? '' : 'disabled'}" href="${escapeAttr(waLink(phone))}" target="_blank" rel="noopener">WhatsApp</a></div>
+        <div class="col-6"><a class="btn btn-outline-success btn-lgx w-100 ${phone ? '' : 'disabled'}" href="${escapeAttr(telLink(phone))}">Llamar</a></div>
+        <div class="col-12"><a class="btn btn-primary btn-lgx w-100 ${hasLocation ? '' : 'disabled'}" href="${escapeAttr(openMap)}" target="_blank" rel="noopener">Abrir Google Maps</a></div>
+        <div class="col-12"><button class="btn btn-dark btn-lgx w-100" onclick="openSign('${escapeAttr(envio.id)}')">Completar con firma</button></div>
+      </div>
+    </article>
+  </div>`;
+}
+
+function openSign(id) {
+  selectedId = id;
+  updateSignatureState(false);
+  signatureModal.show();
+}
+
+clearButton.addEventListener('click', () => signature.clear());
+
+confirmButton.addEventListener('click', async () => {
+  if (!selectedId || signature.isEmpty()) {
+    toast('El cliente debe firmar antes de completar la entrega', 'warning');
+    return;
+  }
+
+  try {
+    isSaving = true;
+    confirmButton.disabled = true;
+    confirmButton.textContent = 'Guardando firma...';
+    await API.post(`/api/envios/${selectedId}/entregar`, {
+      firmaCliente: signature.data(),
+      strokeCount: signature.strokes()
+    });
+    signatureModal.hide();
+    toast('Entrega completada y firma guardada');
+    await load();
+  } catch (error) {
+    toast(error.message, 'danger');
+  } finally {
+    isSaving = false;
+    confirmButton.textContent = 'Completar entrega';
+    updateSignatureState(!signature.isEmpty());
+  }
+});
+</script>
+</body>
+</html>
