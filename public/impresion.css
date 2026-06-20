@@ -63,19 +63,27 @@ body { background: var(--surface); color: var(--ink); min-height: 100vh; }
 }
 .dynamic-phone {
   left: 36.4%;
-  top: 52.7%;
+  top: 52.2%;
   width: 57.3%;
-  height: 10.2%;
+  height: 10.8%;
   display: flex;
   align-items: center;
   justify-content: center;
   text-align: center;
   white-space: nowrap;
+  overflow: hidden;
   color: #000;
   font-family: "Cormorant Garamond", Georgia, "Times New Roman", serif;
   font-weight: 500;
-  line-height: .88;
-  letter-spacing: -.02em;
+  font-style: normal;
+  line-height: 1;
+  letter-spacing: 0;
+  font-variant-numeric: lining-nums tabular-nums;
+  font-feature-settings: "lnum" 1, "tnum" 1;
+  writing-mode: horizontal-tb;
+  direction: ltr;
+  unicode-bidi: isolate;
+  transform: none;
   padding: 0 1.2%;
 }
 .dynamic-city {

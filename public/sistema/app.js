@@ -105,31 +105,55 @@ function toast(message, type = 'success') {
 function initSignature(canvasId = 'firma', onChange = () => {}) {
   const canvas = document.getElementById(canvasId);
   if (!canvas) return null;
-  const context = canvas.getContext('2d', { willReadFrequently: true });
+
+  const context = canvas.getContext('2d', { alpha: false, willReadFrequently: true });
   let drawing = false;
   let hasInk = false;
   let strokeCount = 0;
   let ratio = 1;
+  let lastPoint = null;
+  let resizeTimer = null;
+
+  function paintBackground() {
+    context.save();
+    context.setTransform(1, 0, 0, 1, 0, 0);
+    context.fillStyle = '#ffffff';
+    context.fillRect(0, 0, canvas.width, canvas.height);
+    context.restore();
+  }
 
   function configureContext() {
-    context.setTransform(ratio, 0, 0, ratio, 0, 0);
-    context.lineWidth = 2.6;
+    context.setTransform(1, 0, 0, 1, 0, 0);
+    context.lineWidth = Math.max(3.2 * ratio, 3);
     context.lineCap = 'round';
     context.lineJoin = 'round';
-    context.strokeStyle = '#111827';
+    context.strokeStyle = '#0b1220';
+    context.fillStyle = '#0b1220';
+    context.globalAlpha = 1;
+    context.globalCompositeOperation = 'source-over';
   }
 
   function resize(preserve = false) {
+    if (drawing) return false;
     const rectangle = canvas.getBoundingClientRect();
     if (rectangle.width < 40 || rectangle.height < 40) return false;
+
     const previous = preserve && hasInk ? canvas.toDataURL('image/png') : '';
-    ratio = Math.max(window.devicePixelRatio || 1, 1);
-    canvas.width = Math.round(rectangle.width * ratio);
-    canvas.height = Math.round(rectangle.height * ratio);
+    ratio = Math.min(Math.max(window.devicePixelRatio || 1, 1), 3);
+    canvas.width = Math.max(1, Math.round(rectangle.width * ratio));
+    canvas.height = Math.max(1, Math.round(rectangle.height * ratio));
+    paintBackground();
     configureContext();
+
     if (previous) {
       const image = new Image();
-      image.onload = () => context.drawImage(image, 0, 0, rectangle.width, rectangle.height);
+      image.onload = () => {
+        context.save();
+        context.setTransform(1, 0, 0, 1, 0, 0);
+        context.drawImage(image, 0, 0, canvas.width, canvas.height);
+        context.restore();
+        configureContext();
+      };
       image.src = previous;
     }
     return true;
@@ -137,20 +161,31 @@ function initSignature(canvasId = 'firma', onChange = () => {}) {
 
   function point(event) {
     const rectangle = canvas.getBoundingClientRect();
-    return { x: event.clientX - rectangle.left, y: event.clientY - rectangle.top };
+    const clientX = Number(event.clientX);
+    const clientY = Number(event.clientY);
+    return {
+      x: (clientX - rectangle.left) * ratio,
+      y: (clientY - rectangle.top) * ratio
+    };
+  }
+
+  function drawDot(current) {
+    context.beginPath();
+    context.arc(current.x, current.y, context.lineWidth / 2, 0, Math.PI * 2);
+    context.fill();
   }
 
   function start(event) {
     if (event.pointerType === 'mouse' && event.button !== 0) return;
     event.preventDefault();
     if (!canvas.width || !canvas.height) resize(false);
+
     drawing = true;
+    lastPoint = point(event);
     canvas.setPointerCapture?.(event.pointerId);
-    const current = point(event);
-    context.beginPath();
-    context.moveTo(current.x, current.y);
-    context.lineTo(current.x + 0.15, current.y + 0.15);
-    context.stroke();
+    configureContext();
+    drawDot(lastPoint);
+
     if (!hasInk) {
       hasInk = true;
       onChange(true, strokeCount);
@@ -158,52 +193,62 @@ function initSignature(canvasId = 'firma', onChange = () => {}) {
   }
 
   function move(event) {
-    if (!drawing) return;
+    if (!drawing || !lastPoint) return;
     event.preventDefault();
     const current = point(event);
+    context.beginPath();
+    context.moveTo(lastPoint.x, lastPoint.y);
     context.lineTo(current.x, current.y);
     context.stroke();
+    lastPoint = current;
   }
 
   function end(event) {
     if (!drawing) return;
+    event.preventDefault?.();
     drawing = false;
+    lastPoint = null;
     strokeCount += 1;
     try { canvas.releasePointerCapture?.(event.pointerId); } catch (_) {}
     onChange(hasInk, strokeCount);
   }
 
   canvas.style.touchAction = 'none';
-  canvas.addEventListener('pointerdown', start);
-  canvas.addEventListener('pointermove', move);
-  canvas.addEventListener('pointerup', end);
-  canvas.addEventListener('pointercancel', end);
-  canvas.addEventListener('pointerleave', event => {
-    if (drawing && event.pointerType === 'mouse') end(event);
-  });
+  canvas.style.webkitUserSelect = 'none';
+  canvas.tabIndex = 0;
+  canvas.addEventListener('pointerdown', start, { passive: false });
+  canvas.addEventListener('pointermove', move, { passive: false });
+  canvas.addEventListener('pointerup', end, { passive: false });
+  canvas.addEventListener('pointercancel', end, { passive: false });
+  window.addEventListener('pointerup', event => {
+    if (drawing) end(event);
+  }, { passive: false });
 
   const observer = new ResizeObserver(() => {
-    if (canvas.offsetParent !== null) resize(hasInk);
+    if (canvas.offsetParent === null || drawing) return;
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(() => resize(hasInk), 120);
   });
   observer.observe(canvas);
 
   return {
     resize,
     clear() {
-      context.save();
-      context.setTransform(1, 0, 0, 1, 0, 0);
-      context.clearRect(0, 0, canvas.width, canvas.height);
-      context.restore();
-      configureContext();
       drawing = false;
+      lastPoint = null;
       hasInk = false;
       strokeCount = 0;
+      paintBackground();
+      configureContext();
       onChange(false, 0);
     },
     isEmpty() { return !hasInk; },
     strokes() { return strokeCount; },
     data() { return hasInk ? canvas.toDataURL('image/png') : ''; },
-    destroy() { observer.disconnect(); }
+    destroy() {
+      clearTimeout(resizeTimer);
+      observer.disconnect();
+    }
   };
 }
 

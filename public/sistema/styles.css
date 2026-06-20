@@ -66,3 +66,13 @@ body{background:var(--bg);color:var(--ink);font-family:Inter,system-ui,-apple-sy
   .modal-footer .btn{width:100%}
   .map-preview iframe,.map-loading,.map-error{height:240px;min-height:240px}
 }
+
+/* Ajustes v8: trazo de firma visible en tiempo real */
+.signature{
+  background-color:#fff!important;
+  border:2px solid #64748b!important;
+  box-shadow:inset 0 0 0 1px #e2e8f0,0 8px 24px rgba(15,23,42,.08);
+  overscroll-behavior:contain;
+  -webkit-tap-highlight-color:transparent;
+}
+.signature:active{border-color:#111827!important}

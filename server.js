@@ -398,71 +398,139 @@ app.get('/api/dashboard', requireAuth, (req, res) => {
 
 function buildPdf(envios, title) {
   return new Promise((resolve, reject) => {
-    const doc = new PDFDocument({ margin: 32, size: 'A4' });
+    const doc = new PDFDocument({
+      margin: 28,
+      size: 'A4',
+      layout: 'landscape',
+      info: { Title: title, Author: 'Sistema de Envios Android PC' }
+    });
     const chunks = [];
-    doc.on('data', c => chunks.push(c));
+    doc.on('data', chunk => chunks.push(chunk));
     doc.on('end', () => resolve(Buffer.concat(chunks)));
     doc.on('error', reject);
 
-    const logoPath = path.join(__dirname, 'public', 'assets', 'androidpc.png');
+    const margin = 28;
     const pageWidth = doc.page.width;
-    const margin = 32;
-    const usable = pageWidth - margin * 2;
+    const pageHeight = doc.page.height;
+    const usableWidth = pageWidth - margin * 2;
+    const cardHeight = 94;
+    const cardGap = 10;
+    let cursorY = 0;
+    let pageNumber = 1;
 
-    function header() {
-      if (fs.existsSync(logoPath)) {
-        try { doc.image(logoPath, margin, 24, { width: 95 }); } catch (_) {}
-      }
-      doc.font('Helvetica-Bold').fontSize(18).fillColor('#0f172a').text(title, margin + 110, 30, { width: usable - 110 });
-      doc.font('Helvetica').fontSize(9).fillColor('#64748b').text(`Generado: ${dayjs().format('YYYY-MM-DD HH:mm')} | Sistema de Envios`, margin + 110, 54);
-      doc.moveTo(margin, 82).lineTo(pageWidth - margin, 82).strokeColor('#e5e7eb').stroke();
-      doc.y = 96;
+    const clean = value => String(value ?? '').trim() || 'N/D';
+    const moneyText = value => `Bs ${Number(value || 0).toFixed(2)}`;
+
+    function drawHeader() {
+      doc.fillColor('#111827').font('Helvetica-Bold').fontSize(18)
+        .text(title, margin, 25, { width: usableWidth * 0.7 });
+      doc.fillColor('#64748b').font('Helvetica').fontSize(8.5)
+        .text(`Generado: ${dayjs().format('YYYY-MM-DD HH:mm')} | Sistema de Envios`, margin, 50, { width: usableWidth });
+      doc.moveTo(margin, 66).lineTo(pageWidth - margin, 66).strokeColor('#d1d5db').lineWidth(1).stroke();
+      cursorY = 78;
     }
-    function summaryBox() {
-      const totalMonto = envios.reduce((s, e) => s + Number(e.total || 0), 0);
-      const pendientes = envios.filter(e => e.estado !== 'entregado').length;
-      const entregados = envios.filter(e => e.estado === 'entregado').length;
-      const boxes = [
+
+    function drawFooter() {
+      doc.fillColor('#6b7280').font('Helvetica').fontSize(8)
+        .text(`Pagina ${pageNumber}`, margin, pageHeight - 24, { width: usableWidth, align: 'right' });
+    }
+
+    function addPage() {
+      drawFooter();
+      doc.addPage({ size: 'A4', layout: 'landscape', margin });
+      pageNumber += 1;
+      drawHeader();
+    }
+
+    function drawSummary() {
+      const totalMonto = envios.reduce((sum, envio) => sum + Number(envio.total || 0), 0);
+      const pendientes = envios.filter(envio => envio.estado !== 'entregado').length;
+      const entregados = envios.filter(envio => envio.estado === 'entregado').length;
+      const values = [
         ['Total envios', envios.length],
         ['Pendientes', pendientes],
         ['Entregados', entregados],
-        ['Monto total', `Bs ${totalMonto.toFixed(2)}`]
+        ['Monto total', moneyText(totalMonto)]
       ];
-      const w = usable / 4 - 6;
-      boxes.forEach((b, i) => {
-        const x = margin + i * (w + 8);
-        doc.roundedRect(x, doc.y, w, 48, 8).fillAndStroke('#f8fafc', '#e5e7eb');
-        doc.fillColor('#64748b').font('Helvetica-Bold').fontSize(7).text(b[0].toUpperCase(), x + 10, doc.y + 10, { width: w - 20 });
-        doc.fillColor('#0f172a').fontSize(12).text(String(b[1]), x + 10, doc.y + 25, { width: w - 20 });
+      const top = cursorY;
+      const gap = 10;
+      const width = (usableWidth - gap * 3) / 4;
+
+      values.forEach(([label, value], index) => {
+        const x = margin + index * (width + gap);
+        doc.roundedRect(x, top, width, 48, 7).fillAndStroke('#f8fafc', '#dbe3ee');
+        doc.fillColor('#64748b').font('Helvetica-Bold').fontSize(7)
+          .text(String(label).toUpperCase(), x + 10, top + 10, { width: width - 20, height: 10 });
+        doc.fillColor('#111827').font('Helvetica-Bold').fontSize(12)
+          .text(String(value), x + 10, top + 26, { width: width - 20, height: 16 });
       });
-      doc.y += 64;
-    }
-    function row(label, value, x, y, w) {
-      doc.fillColor('#64748b').font('Helvetica-Bold').fontSize(7).text(label.toUpperCase(), x, y, { width: w });
-      doc.fillColor('#111827').font('Helvetica').fontSize(9).text(String(value || 'N/D'), x, y + 10, { width: w, lineGap: 1 });
+      cursorY = top + 62;
     }
 
-    header();
-    summaryBox();
-    envios.forEach((e, i) => {
-      if (doc.y > 690) { doc.addPage(); header(); }
-      const top = doc.y;
-      doc.roundedRect(margin, top, usable, 112, 10).fillAndStroke('#ffffff', '#dbe3ee');
-      doc.fillColor('#0f172a').font('Helvetica-Bold').fontSize(11).text(`${i + 1}. ${e.codigo || e.id}  ${e.cliente || e.transportadoraNombre || 'Sin cliente'}`, margin + 12, top + 12, { width: usable - 24 });
-      doc.fillColor(e.estado === 'entregado' ? '#166534' : '#92400e').fontSize(8).text(String(e.estado || 'pendiente').toUpperCase(), pageWidth - margin - 105, top + 14, { width: 90, align: 'right' });
-      row('Fecha', e.fecha, margin + 12, top + 36, 70);
-      row('Usuario', e.creadoPor, margin + 90, top + 36, 75);
-      row('Tipo', e.tipoEnvio === 'transportadora' ? 'Transportadora' : 'Santa Cruz', margin + 175, top + 36, 90);
-      row('Celular', e.celularCliente || e.transportadoraTelefono, margin + 275, top + 36, 80);
-      row('Total', `Bs ${Number(e.total || 0).toFixed(2)}`, margin + 365, top + 36, 80);
-      row('Producto', e.producto, margin + 12, top + 67, 170);
-      row('Direccion', e.direccionLiteral || e.transportadoraDireccion, margin + 195, top + 67, 210);
-      row('Google Maps', e.googleMaps || e.transportadoraMaps, margin + 415, top + 67, usable - 427);
-      doc.y = top + 124;
-    });
-    if (!envios.length) {
-      doc.fillColor('#64748b').fontSize(11).text('No hay envios para el rango seleccionado.', margin, doc.y + 20);
+    function drawField(label, value, x, y, width, options = {}) {
+      doc.fillColor('#6b7280').font('Helvetica-Bold').fontSize(6.5)
+        .text(String(label).toUpperCase(), x, y, { width, height: 9 });
+      doc.fillColor('#111827').font('Helvetica').fontSize(options.fontSize || 8.5)
+        .text(clean(value), x, y + 10, {
+          width,
+          height: options.height || 19,
+          ellipsis: true,
+          lineGap: 1,
+          link: options.link || undefined,
+          underline: Boolean(options.link)
+        });
     }
+
+    function drawShipment(envio, index) {
+      if (cursorY + cardHeight > pageHeight - 36) addPage();
+
+      const top = cursorY;
+      const left = margin;
+      doc.roundedRect(left, top, usableWidth, cardHeight, 8).fillAndStroke('#ffffff', '#d6dee8');
+
+      const clientName = envio.cliente || envio.transportadoraNombre || 'Sin cliente';
+      const code = envio.codigo || envio.id || `ENV-${index + 1}`;
+      const status = String(envio.estado || 'pendiente').toUpperCase();
+      const statusColor = envio.estado === 'entregado' ? '#166534' : envio.estado === 'en_camino' ? '#1d4ed8' : '#92400e';
+
+      doc.fillColor('#111827').font('Helvetica-Bold').fontSize(10.5)
+        .text(`${index + 1}. ${clean(code)}  ${clean(clientName)}`, left + 12, top + 10, { width: usableWidth - 130, height: 16, ellipsis: true });
+      doc.fillColor(statusColor).font('Helvetica-Bold').fontSize(7.5)
+        .text(status, left + usableWidth - 110, top + 12, { width: 96, align: 'right', height: 12 });
+
+      const row1Y = top + 34;
+      drawField('Fecha', envio.fecha, left + 12, row1Y, 76);
+      drawField('Usuario', envio.creadoPor, left + 96, row1Y, 78);
+      drawField('Tipo', envio.tipoEnvio === 'transportadora' ? 'Transportadora' : 'Santa Cruz', left + 182, row1Y, 96);
+      drawField('Celular', envio.celularCliente || envio.transportadoraTelefono, left + 286, row1Y, 92);
+      drawField('Total', moneyText(envio.total), left + 386, row1Y, 82);
+      drawField('Destino', envio.destinoDepartamento, left + 476, row1Y, 110);
+
+      const row2Y = top + 63;
+      drawField('Producto', envio.producto, left + 12, row2Y, 175, { height: 18 });
+      drawField('Direccion', envio.direccionLiteral || envio.transportadoraDireccion, left + 197, row2Y, 345, { height: 18, fontSize: 8 });
+
+      const mapUrl = envio.googleMaps || envio.transportadoraMaps || '';
+      drawField('Google Maps', mapUrl ? 'Abrir ubicacion' : 'N/D', left + 552, row2Y, usableWidth - 564, {
+        height: 18,
+        link: mapUrl || undefined,
+        fontSize: 8
+      });
+
+      cursorY = top + cardHeight + cardGap;
+    }
+
+    drawHeader();
+    drawSummary();
+
+    if (!envios.length) {
+      doc.fillColor('#6b7280').font('Helvetica').fontSize(11)
+        .text('No hay envios para el rango seleccionado.', margin, cursorY + 20, { width: usableWidth, align: 'center' });
+    } else {
+      envios.forEach(drawShipment);
+    }
+
+    drawFooter();
     doc.end();
   });
 }
