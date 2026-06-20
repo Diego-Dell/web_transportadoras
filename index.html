@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Directorio de Transportadoras</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="styles.css" rel="stylesheet">
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-dark sticky-top shadow-sm">
+  <div class="container-fluid px-3 px-lg-4">
+    <a class="navbar-brand fw-bold" href="#">Transportadoras</a>
+    <span class="badge rounded-pill text-bg-light">Android PC</span>
+  </div>
+</nav>
+<header class="hero py-5">
+  <div class="container">
+    <div class="row align-items-center g-4">
+      <div class="col-lg-8">
+        <p class="eyebrow mb-2">Base de datos de guías y encomiendas</p>
+        <h1 class="display-5 fw-bold mb-3">Directorio dinámico de transportadoras</h1>
+        <p class="lead mb-0">Consulta rutas, teléfonos, precios aproximados, direcciones y enlaces rápidos a Google Maps.</p>
+      </div>
+      <div class="col-lg-4">
+        <div class="glass-card p-4">
+          <div class="d-flex justify-content-between align-items-center"><span>Guías registradas</span><strong id="kpiGuias">0</strong></div>
+          <hr>
+          <div class="d-flex justify-content-between align-items-center"><span>Transportadoras</span><strong id="kpiTransportadoras">0</strong></div>
+          <hr>
+          <div class="d-flex justify-content-between align-items-center"><span>Precio promedio</span><strong id="kpiPromedio">Bs 0</strong></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+<main class="container my-4 my-lg-5">
+  <section class="filters card border-0 shadow-sm mb-4">
+    <div class="card-body">
+      <div class="row g-3 align-items-end">
+        <div class="col-lg-4">
+          <label class="form-label">Buscar</label>
+          <input id="searchInput" class="form-control" placeholder="Transportadora, guía, departamento, producto...">
+        </div>
+        <div class="col-lg-3">
+          <label class="form-label">Transportadora</label>
+          <select id="transportadoraFilter" class="form-select"><option value="">Todas</option></select>
+        </div>
+        <div class="col-lg-2">
+          <label class="form-label">Origen por departamento</label>
+          <select id="origenFilter" class="form-select"><option value="">Todos</option></select>
+        </div>
+        <div class="col-lg-2">
+          <label class="form-label">Destino por departamento</label>
+          <select id="destinoFilter" class="form-select"><option value="">Todos</option></select>
+        </div>
+        <div class="col-lg-1 d-grid">
+          <button id="clearBtn" class="btn btn-outline-secondary">Limpiar</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="row g-3 mb-4" id="summaryCards"></section>
+
+  <section class="card border-0 shadow-sm">
+    <div class="card-header bg-white d-flex flex-column flex-md-row justify-content-between gap-2 align-items-md-center">
+      <div><strong>Listado de guías</strong> <span class="text-muted" id="resultCount"></span></div>
+      <button id="exportCsv" class="btn btn-sm btn-success">Exportar CSV filtrado</button>
+    </div>
+    <div class="table-responsive">
+      <table class="table table-hover align-middle mb-0">
+        <thead>
+          <tr>
+            <th>Transportadora</th><th>Departamentos</th><th>Producto</th><th>Precio</th><th>Teléfono</th><th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody id="tableBody"></tbody>
+      </table>
+    </div>
+  </section>
+</main>
+
+<div class="modal fade" id="detailModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="detailTitle">Detalle</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+      <div class="modal-body" id="detailBody"></div>
+    </div>
+  </div>
+</div>
+<footer class="py-4 mt-5 text-center text-muted small">
+  Datos transcritos desde el PDF de 69 imágenes. Verificar teléfonos y direcciones antes de derivar clientes.
+</footer>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="data.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
