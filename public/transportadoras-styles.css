@@ -13,3 +13,5 @@ body{background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,"
 .dept-card img{width:28px;height:28px;object-fit:cover;border-radius:8px;border:1px solid #eef2f7}
 .dept-hero{display:flex;align-items:center;gap:.75rem;flex-wrap:wrap;background:#f8fafc;border:1px solid #e5e7eb;border-radius:16px;padding:1rem}
 .dept-hero>span:not(.dept-card){font-size:.75rem;text-transform:uppercase;letter-spacing:.08em;color:#64748b;font-weight:700}
+
+.nav-logo{height:34px;width:auto;background:#fff;border-radius:10px;padding:3px}

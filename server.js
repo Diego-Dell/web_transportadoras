@@ -56,7 +56,7 @@ function onlyDigits(v = '') {
 
 function initData() {
   if (!fs.existsSync(files.usuarios)) {
-    const users = (process.env.DEFAULT_USERS || 'kamil,soledad,dell,mikela,benjamin,rodrigo,kevin1')
+    const users = (process.env.DEFAULT_USERS || 'kamil,soledad,dell,mikela,benjamin,rodrigo,Kevin')
       .split(',')
       .map(x => x.trim())
       .filter(Boolean)
@@ -64,7 +64,7 @@ function initData() {
         id: newId('USR'),
         username,
         pinHash: bcrypt.hashSync(process.env.DEFAULT_PIN || '123456', 10),
-        role: username === 'kevin1' ? 'driver' : 'worker',
+        role: username.toLowerCase() === 'kevin' ? 'driver' : 'worker',
         active: true,
         createdAt: nowIso(),
         updatedAt: nowIso()
@@ -89,6 +89,38 @@ function initData() {
 }
 initData();
 
+function migrateUsers() {
+  const users = readJson(files.usuarios, []);
+  let changed = false;
+  users.forEach(u => {
+    if (String(u.username).toLowerCase() === 'kevin1') {
+      u.username = 'Kevin';
+      u.role = 'driver';
+      u.updatedAt = nowIso();
+      changed = true;
+    }
+    if (String(u.username).toLowerCase() === 'kevin') {
+      u.username = 'Kevin';
+      u.role = 'driver';
+      changed = true;
+    }
+  });
+  if (!users.some(u => String(u.username).toLowerCase() === 'kevin')) {
+    users.push({
+      id: newId('USR'),
+      username: 'Kevin',
+      pinHash: bcrypt.hashSync(process.env.DEFAULT_PIN || '123456', 10),
+      role: 'driver',
+      active: true,
+      createdAt: nowIso(),
+      updatedAt: nowIso()
+    });
+    changed = true;
+  }
+  if (changed) writeJson(files.usuarios, users);
+}
+migrateUsers();
+
 app.use(express.json({ limit: '25mb' }));
 app.use(express.urlencoded({ extended: true, limit: '25mb' }));
 app.use(session({
@@ -111,7 +143,7 @@ function requireAuth(req, res, next) {
 
 function requireDriver(req, res, next) {
   if (!req.session.user) return res.status(401).json({ error: 'No autorizado' });
-  if (req.session.user.username !== 'kevin1' && req.session.user.role !== 'driver') {
+  if (req.session.user.username.toLowerCase() !== 'kevin' && req.session.user.role !== 'driver') {
     return res.status(403).json({ error: 'Solo Kevin puede usar el modo al volante' });
   }
   next();
@@ -262,27 +294,71 @@ app.get('/api/dashboard', requireAuth, (req, res) => {
 
 function buildPdf(envios, title) {
   return new Promise((resolve, reject) => {
-    const doc = new PDFDocument({ margin: 36, size: 'A4' });
+    const doc = new PDFDocument({ margin: 32, size: 'A4' });
     const chunks = [];
     doc.on('data', c => chunks.push(c));
     doc.on('end', () => resolve(Buffer.concat(chunks)));
     doc.on('error', reject);
-    doc.fontSize(16).text(title, { align: 'center' });
-    doc.moveDown(0.5);
-    doc.fontSize(10).text(`Generado: ${dayjs().format('YYYY-MM-DD HH:mm')}`);
-    doc.text(`Total de envios: ${envios.length}`);
-    doc.text(`Monto total: Bs ${envios.reduce((s, e) => s + Number(e.total || 0), 0).toFixed(2)}`);
-    doc.moveDown();
+
+    const logoPath = path.join(__dirname, 'public', 'assets', 'androidpc.png');
+    const pageWidth = doc.page.width;
+    const margin = 32;
+    const usable = pageWidth - margin * 2;
+
+    function header() {
+      if (fs.existsSync(logoPath)) {
+        try { doc.image(logoPath, margin, 24, { width: 95 }); } catch (_) {}
+      }
+      doc.font('Helvetica-Bold').fontSize(18).fillColor('#0f172a').text(title, margin + 110, 30, { width: usable - 110 });
+      doc.font('Helvetica').fontSize(9).fillColor('#64748b').text(`Generado: ${dayjs().format('YYYY-MM-DD HH:mm')} | Sistema de Envios`, margin + 110, 54);
+      doc.moveTo(margin, 82).lineTo(pageWidth - margin, 82).strokeColor('#e5e7eb').stroke();
+      doc.y = 96;
+    }
+    function summaryBox() {
+      const totalMonto = envios.reduce((s, e) => s + Number(e.total || 0), 0);
+      const pendientes = envios.filter(e => e.estado !== 'entregado').length;
+      const entregados = envios.filter(e => e.estado === 'entregado').length;
+      const boxes = [
+        ['Total envios', envios.length],
+        ['Pendientes', pendientes],
+        ['Entregados', entregados],
+        ['Monto total', `Bs ${totalMonto.toFixed(2)}`]
+      ];
+      const w = usable / 4 - 6;
+      boxes.forEach((b, i) => {
+        const x = margin + i * (w + 8);
+        doc.roundedRect(x, doc.y, w, 48, 8).fillAndStroke('#f8fafc', '#e5e7eb');
+        doc.fillColor('#64748b').font('Helvetica-Bold').fontSize(7).text(b[0].toUpperCase(), x + 10, doc.y + 10, { width: w - 20 });
+        doc.fillColor('#0f172a').fontSize(12).text(String(b[1]), x + 10, doc.y + 25, { width: w - 20 });
+      });
+      doc.y += 64;
+    }
+    function row(label, value, x, y, w) {
+      doc.fillColor('#64748b').font('Helvetica-Bold').fontSize(7).text(label.toUpperCase(), x, y, { width: w });
+      doc.fillColor('#111827').font('Helvetica').fontSize(9).text(String(value || 'N/D'), x, y + 10, { width: w, lineGap: 1 });
+    }
+
+    header();
+    summaryBox();
     envios.forEach((e, i) => {
-      if (doc.y > 740) doc.addPage();
-      doc.fontSize(10).font('Helvetica-Bold').text(`${i + 1}. ${e.codigo || e.id} - ${e.cliente || 'Sin cliente'} - ${e.estado}`);
-      doc.font('Helvetica').text(`Fecha: ${e.fecha} | Usuario: ${e.creadoPor} | Tipo: ${e.tipoEnvio}`);
-      doc.text(`Producto: ${e.producto} | Cantidad: ${e.cantidad} | Total: Bs ${Number(e.total || 0).toFixed(2)}`);
-      doc.text(`Celular: ${e.celularCliente || e.transportadoraTelefono || ''}`);
-      doc.text(`Direccion: ${e.direccionLiteral || e.transportadoraDireccion || ''}`);
-      doc.text(`Maps: ${e.googleMaps || e.transportadoraMaps || ''}`);
-      doc.moveDown(0.7);
+      if (doc.y > 690) { doc.addPage(); header(); }
+      const top = doc.y;
+      doc.roundedRect(margin, top, usable, 112, 10).fillAndStroke('#ffffff', '#dbe3ee');
+      doc.fillColor('#0f172a').font('Helvetica-Bold').fontSize(11).text(`${i + 1}. ${e.codigo || e.id}  ${e.cliente || e.transportadoraNombre || 'Sin cliente'}`, margin + 12, top + 12, { width: usable - 24 });
+      doc.fillColor(e.estado === 'entregado' ? '#166534' : '#92400e').fontSize(8).text(String(e.estado || 'pendiente').toUpperCase(), pageWidth - margin - 105, top + 14, { width: 90, align: 'right' });
+      row('Fecha', e.fecha, margin + 12, top + 36, 70);
+      row('Usuario', e.creadoPor, margin + 90, top + 36, 75);
+      row('Tipo', e.tipoEnvio === 'transportadora' ? 'Transportadora' : 'Santa Cruz', margin + 175, top + 36, 90);
+      row('Celular', e.celularCliente || e.transportadoraTelefono, margin + 275, top + 36, 80);
+      row('Total', `Bs ${Number(e.total || 0).toFixed(2)}`, margin + 365, top + 36, 80);
+      row('Producto', e.producto, margin + 12, top + 67, 170);
+      row('Direccion', e.direccionLiteral || e.transportadoraDireccion, margin + 195, top + 67, 210);
+      row('Google Maps', e.googleMaps || e.transportadoraMaps, margin + 415, top + 67, usable - 427);
+      doc.y = top + 124;
     });
+    if (!envios.length) {
+      doc.fillColor('#64748b').fontSize(11).text('No hay envios para el rango seleccionado.', margin, doc.y + 20);
+    }
     doc.end();
   });
 }

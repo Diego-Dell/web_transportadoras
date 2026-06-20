@@ -25,11 +25,11 @@ function telLink(n){ const d=cleanPhone(n); return d?`tel:+591${d}`:'#'; }
 function mapsLink(url){ return url && String(url).startsWith('http') ? url : '#'; }
 async function authGuard(){ return API.get('/api/me').catch(()=> location.href='/sistema/login.html'); }
 function nav(active='', user=null){
-  const isDriver = user && (user.username === 'kevin1' || user.role === 'driver');
+  const isDriver = user && (String(user.username).toLowerCase() === 'kevin' || user.role === 'driver');
   document.body.insertAdjacentHTML('afterbegin', `
 <nav class="navbar navbar-expand-lg navbar-dark app-navbar sticky-top">
   <div class="container-fluid px-3 px-lg-4">
-    <a class="navbar-brand fw-bold d-flex align-items-center gap-2" href="/sistema/index.html"><span class="brand-mark">SE</span><span>Sistema de Envios</span></a>
+    <a class="navbar-brand fw-bold d-flex align-items-center gap-2" href="/sistema/index.html"><img class="app-logo" src="/assets/androidpc.png" alt="Android PC"><span>Sistema de Envios</span></a>
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu"><span class="navbar-toggler-icon"></span></button>
     <div class="collapse navbar-collapse" id="navMenu">
       <ul class="navbar-nav me-auto mb-2 mb-lg-0 gap-lg-1">
@@ -38,6 +38,7 @@ function nav(active='', user=null){
         ${isDriver ? `<li class="nav-item"><a class="nav-link ${active==='kevin'?'active':''}" href="/sistema/kevin.html">Modo al volante</a></li>` : ''}
         <li class="nav-item"><a class="nav-link ${active==='historial'?'active':''}" href="/sistema/historial.html">Historial</a></li>
         <li class="nav-item"><a class="nav-link ${active==='transportadoras'?'active':''}" href="/sistema/transportadoras.html">Transportadoras</a></li>
+        <li class="nav-item"><a class="nav-link" href="/impresion.html">Impresión</a></li>
       </ul>
       <div class="d-flex flex-column flex-lg-row gap-2 align-items-lg-center">
         ${user ? `<span class="user-chip">${user.username}</span>` : ''}
@@ -79,4 +80,9 @@ function emptyState(title, text){
 function statusBadge(s){
   const map={pendiente:'warning', entregado:'success', en_camino:'primary'};
   return `<span class="badge rounded-pill text-bg-${map[s]||'secondary'}">${s||'pendiente'}</span>`;
+}
+
+function mapPreviewSrc(url, direccion){
+  const q = url && String(url).startsWith('http') ? url : (direccion || 'Santa Cruz Bolivia');
+  return `https://maps.google.com/maps?q=${encodeURIComponent(q)}&output=embed`;
 }
