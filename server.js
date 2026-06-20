@@ -97,6 +97,10 @@ app.use(session({
   saveUninitialized: false,
   cookie: { httpOnly: true, sameSite: 'lax', maxAge: 1000 * 60 * 60 * 12 }
 }));
+app.get('/sistema', (req, res) => {
+  if (req.session && req.session.user) return res.redirect('/sistema/index.html');
+  return res.redirect('/sistema/login.html');
+});
 app.use(express.static(path.join(__dirname, 'public')));
 app.use('/uploads', express.static(UPLOADS_DIR));
 

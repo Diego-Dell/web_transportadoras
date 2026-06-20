@@ -1,11 +1,9 @@
-# Sistema de Envios
+# Web Transportadoras + Sistema de Envios
 
-Sistema Dockerizado con HTML, Bootstrap, JS, Node.js, JSON, firma digital, exportacion PDF y reporte semanal por SMTP.
+La pagina principal `/` muestra el directorio de transportadoras.
+El sistema operativo esta en `/sistema/login.html`.
 
-## Usuarios iniciales
-
-Todos tienen PIN inicial `123456`:
-
+Usuarios iniciales con PIN `123456`:
 - kamil
 - soledad
 - dell
@@ -14,24 +12,4 @@ Todos tienen PIN inicial `123456`:
 - rodrigo
 - kevin1
 
-Cada usuario puede cambiar su PIN desde la web.
-
-## Instalacion VPS
-
-```bash
-cd /var/www/sistema-envios
-docker compose down
-docker compose pull
-docker compose up -d
-```
-
-## Persistencia
-
-Los datos se guardan en:
-
-- ./data/envios.json
-- ./data/usuarios.json
-- ./data/transportadoras.json
-- ./uploads
-
-No borres esas carpetas.
+El modo al volante esta habilitado solamente para `kevin1`.
