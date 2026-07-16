@@ -158,8 +158,8 @@
       setLoading(true, 'Generando PDF...');
       const canvas = await renderCanvas();
       const { jsPDF } = window.jspdf;
-      const pdf = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4', compress: true });
-      pdf.addImage(canvas.toDataURL('image/jpeg', 0.98), 'JPEG', 0, 0, 297, 210, undefined, 'FAST');
+      const pdf = new jsPDF({ orientation: 'landscape', unit: 'mm', format: [160, 90], compress: true });
+      pdf.addImage(canvas.toDataURL('image/jpeg', 0.98), 'JPEG', 0, 0, 160, 90, undefined, 'FAST');
       pdf.save(filename('pdf'));
     } catch (error) {
       console.error(error);
@@ -192,7 +192,7 @@
       const dataUrl = canvas.toDataURL('image/png');
       const printWindow = window.open('', '_blank');
       if (!printWindow) throw new Error('Ventana bloqueada');
-      printWindow.document.write(`<!doctype html><html><head><title>Imprimir nota</title><style>@page{size:A4 landscape;margin:0}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#fff}img{display:block;width:297mm;height:210mm;object-fit:contain}</style></head><body><img src="${dataUrl}" onload="setTimeout(()=>window.print(),300)"></body></html>`);
+      printWindow.document.write(`<!doctype html><html><head><title>Imprimir nota</title><style>@page{size:160mm 90mm;margin:0}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#fff}img{display:block;width:160mm;height:90mm;object-fit:contain}</style></head><body><img src="${dataUrl}" onload="setTimeout(()=>window.print(),300)"></body></html>`);
       printWindow.document.close();
     } catch (error) {
       console.error(error);
