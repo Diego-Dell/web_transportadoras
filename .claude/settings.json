@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(zbarimg --raw native.png)",
+      "Bash(python3 -c ' *)",
+      "Bash(sed 's#href=\"/assets/rodcaz-logo.png\"#href=\"/root/web_transportadoras/public/assets/rodcaz-logo.png\"#' /root/web_transportadoras/public/assets/impresion/envios.svg)",
+      "Bash(sed -n '1,80p' /usr/local/lib/python3.12/dist-packages/cairosvg/image.py)",
+      "Read(//usr/local/lib/python3.12/dist-packages/cairosvg/**)",
+      "Bash(grep -rn \"fetch_url\\\\|unsafe\" /usr/local/lib/python3.12/dist-packages/cairosvg/url.py /usr/local/lib/python3.12/dist-packages/cairosvg/parser.py 2>/dev/null | head -30)"
+    ]
+  }
+}

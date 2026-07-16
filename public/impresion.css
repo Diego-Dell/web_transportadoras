@@ -57,12 +57,12 @@ body { background: var(--surface); color: var(--ink); min-height: 100vh; }
   text-transform: uppercase;
 }
 .dynamic-name {
-  left: 29.7%;
-  top: 26.5%;
-  width: 62.7%;
+  left: 32%;
+  top: 34%;
+  width: 65%;
   height: 9%;
   display: flex;
-  align-items: flex-end;
+  align-items: center;
   justify-content: flex-start;
   text-align: left;
   white-space: pre-line;
@@ -74,12 +74,12 @@ body { background: var(--surface); color: var(--ink); min-height: 100vh; }
   padding: 0 1.2%;
 }
 .dynamic-phone {
-  left: 21.4%;
-  top: 43.5%;
-  width: 49.9%;
-  height: 9.6%;
+  left: 18%;
+  top: 52%;
+  width: 60%;
+  height: 10%;
   display: flex;
-  align-items: flex-end;
+  align-items: center;
   justify-content: flex-start;
   text-align: left;
   white-space: nowrap;
@@ -99,14 +99,14 @@ body { background: var(--surface); color: var(--ink); min-height: 100vh; }
   padding: 0 1.2%;
 }
 .dynamic-city {
-  left: 38%;
-  top: 61%;
+  left: 40%;
+  top: 71%;
   width: 45%;
   height: 13%;
   display: flex;
   align-items: center;
-  justify-content: center;
-  text-align: center;
+  justify-content: flex-start;
+  text-align: left;
   white-space: nowrap;
   overflow: hidden;
   color: #0d0d0d;
