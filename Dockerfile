@@ -20,6 +20,7 @@ ENV PORT=3000
 COPY --from=dependencies /app/node_modules ./node_modules
 COPY package.json ./
 COPY server.js ./
+COPY db.js ./
 COPY public ./public
 
 RUN mkdir -p /app/data /app/uploads

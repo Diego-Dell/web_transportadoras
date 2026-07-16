@@ -3,6 +3,15 @@
 La pagina principal `/` muestra el directorio de transportadoras.
 El sistema operativo esta en `/sistema/login.html`.
 
+## Puesta en marcha
+
+El sistema vive en **https://androidpc.tech** y usa **PostgreSQL** como base de datos (ya no JSON en disco).
+
+1. Copia `.env.example` a `.env` y completa `SESSION_SECRET`, `POSTGRES_PASSWORD`/`DATABASE_URL` y las credenciales SMTP.
+2. `docker compose up -d` levanta Postgres (`postgres:16-alpine`, con volumen `pgdata`) y la app, en ese orden (`depends_on: service_healthy`).
+3. En el primer arranque, `db.js` crea el esquema y, si las tablas están vacías, migra automáticamente los usuarios/transportadoras/envíos que hubiera en `data/*.json` (compatibilidad con instalaciones anteriores). Esos JSON quedan como respaldo histórico; la app ya no los usa para leer/escribir.
+4. Detrás de un reverse proxy (Nginx/Traefik/Caddy) que termine TLS para `androidpc.tech`, la cookie de sesión se marca `secure` automáticamente en `NODE_ENV=production`, así que el proxy debe reenviar `X-Forwarded-*` (la app ya hace `trust proxy`).
+
 Usuarios iniciales con PIN `123456`:
 - kamil
 - soledad
