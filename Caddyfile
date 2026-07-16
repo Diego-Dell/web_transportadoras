@@ -1,0 +1,4 @@
+androidpc.tech {
+	encode gzip
+	reverse_proxy sistema-envios:3000
+}
