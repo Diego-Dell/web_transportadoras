@@ -32,6 +32,16 @@ services:
     labels:
       - "com.centurylinklabs.watchtower.enable=true"
 
+  adminer:
+    image: adminer:latest
+    container_name: sistema-envios-adminer
+    restart: always
+    environment:
+      ADMINER_DEFAULT_SERVER: postgres
+    depends_on:
+      postgres:
+        condition: service_healthy
+
   caddy:
     image: caddy:2-alpine
     container_name: sistema-envios-caddy
@@ -45,6 +55,7 @@ services:
       - caddy_config:/config
     depends_on:
       - sistema-envios
+      - adminer
 
   watchtower:
     image: containrrr/watchtower

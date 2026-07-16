@@ -2,3 +2,10 @@ androidpc.tech {
 	encode gzip
 	reverse_proxy sistema-envios:3000
 }
+
+adminer.androidpc.tech {
+	basicauth {
+		admin $2a$14$tCn4.rd/XAqYcLjypcYOxuhohlchbeT59x/DGuLVDefFhWJpsUyzq
+	}
+	reverse_proxy adminer:8080
+}
