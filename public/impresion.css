@@ -21,7 +21,7 @@ body { background: var(--surface); color: var(--ink); min-height: 100vh; }
 .label-canvas {
   position: relative;
   width: 100%;
-  aspect-ratio: 1755 / 1241;
+  aspect-ratio: 842.25 / 595.499986;
   overflow: hidden;
   background: #fff;
   box-shadow: 0 8px 25px rgba(15,23,42,.12);
@@ -36,6 +36,18 @@ body { background: var(--surface); color: var(--ink); min-height: 100vh; }
   user-select: none;
   pointer-events: none;
 }
+.label-logo-androidpc {
+  position: absolute;
+  left: 74.5%;
+  top: 2.5%;
+  width: 24%;
+  height: 24.4%;
+  object-fit: contain;
+  object-position: right center;
+  user-select: none;
+  pointer-events: none;
+  z-index: 1;
+}
 .dynamic-name,
 .dynamic-phone,
 .dynamic-city {
@@ -45,36 +57,36 @@ body { background: var(--surface); color: var(--ink); min-height: 100vh; }
   text-transform: uppercase;
 }
 .dynamic-name {
-  left: 18.2%;
-  top: 28.2%;
-  width: 63.6%;
-  height: 22.2%;
+  left: 29.7%;
+  top: 26.5%;
+  width: 62.7%;
+  height: 9%;
   display: flex;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
+  align-items: flex-end;
+  justify-content: flex-start;
+  text-align: left;
   white-space: pre-line;
   color: #000;
-  font-family: "Cormorant Garamond", Georgia, "Times New Roman", serif;
-  font-weight: 500;
-  line-height: .88;
-  letter-spacing: -.02em;
+  font-family: Arial, "Helvetica Neue", sans-serif;
+  font-weight: 700;
+  line-height: .95;
+  letter-spacing: 0;
   padding: 0 1.2%;
 }
 .dynamic-phone {
-  left: 36.4%;
-  top: 52.2%;
-  width: 57.3%;
-  height: 10.8%;
+  left: 21.4%;
+  top: 43.5%;
+  width: 49.9%;
+  height: 9.6%;
   display: flex;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
+  align-items: flex-end;
+  justify-content: flex-start;
+  text-align: left;
   white-space: nowrap;
   overflow: hidden;
   color: #000;
-  font-family: "Cormorant Garamond", Georgia, "Times New Roman", serif;
-  font-weight: 500;
+  font-family: Arial, "Helvetica Neue", sans-serif;
+  font-weight: 700;
   font-style: normal;
   line-height: 1;
   letter-spacing: 0;
@@ -87,17 +99,17 @@ body { background: var(--surface); color: var(--ink); min-height: 100vh; }
   padding: 0 1.2%;
 }
 .dynamic-city {
-  left: 31.5%;
-  top: 63.1%;
-  width: 57%;
-  height: 15.2%;
+  left: 38%;
+  top: 61%;
+  width: 45%;
+  height: 13%;
   display: flex;
   align-items: center;
   justify-content: center;
   text-align: center;
   white-space: nowrap;
   overflow: hidden;
-  color: #2413cc;
+  color: #0d0d0d;
   font-family: "Bangers", Impact, "Arial Black", sans-serif;
   line-height: .9;
   letter-spacing: .02em;

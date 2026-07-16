@@ -42,7 +42,7 @@ function phoneLinks(row, compact=false){
   if (!nums.length) return '<span class="text-muted">N/D</span>';
   return nums.map(n => {
     const full = n.startsWith('591') ? n : `591${n}`;
-    return `<span class="phone-actions"><a class="phone-link" href="https://wa.me/${full}" target="_blank" title="Abrir WhatsApp">${esc(n)}</a><a class="call-link" href="tel:+${full}" title="Llamada normal">Llamar</a></span>`;
+    return `<span class="phone-actions"><a class="phone-link" href="https://wa.me/${full}" target="_blank" rel="noopener" title="Abrir WhatsApp">${esc(n)}</a><a class="call-link" href="tel:+${full}" title="Llamada normal">Llamar</a></span>`;
   }).join('');
 }
 function deptCard(dept){
@@ -52,7 +52,7 @@ function deptCard(dept){
 
 function pdfButton(row){
   const page = Number(row['Página PDF'] || 1);
-  return `<a class="btn btn-sm btn-outline-dark" target="_blank" href="${PDF_FILE}#page=${page}">Abrir PDF</a>`;
+  return `<a class="btn btn-sm btn-outline-dark" target="_blank" rel="noopener" href="${PDF_FILE}#page=${page}">Abrir PDF</a>`;
 }
 
 function uniqueDept(field){return [...new Set(GUIAS_DATA.map(x=>departamento(x[field])).filter(Boolean))].sort((a,b)=>String(a).localeCompare(String(b),'es'))}
@@ -118,7 +118,7 @@ function renderTable(){
       <td class="text-nowrap">
         <button class="btn btn-sm btn-outline-primary" onclick="showDetail(${GUIAS_DATA.indexOf(x)})">Ver</button>
         ${pdfButton(x)}
-        ${x['Google Maps'] ? `<a class="btn btn-sm btn-outline-success btn-map" target="_blank" href="${esc(x['Google Maps'])}">Maps</a>` : ''}
+        ${x['Google Maps'] ? `<a class="btn btn-sm btn-outline-success btn-map" target="_blank" rel="noopener" href="${esc(x['Google Maps'])}">Maps</a>` : ''}
       </td>
     </tr>`}).join('');
 }
@@ -132,7 +132,7 @@ function showDetail(index){
     ['Destino registrado',x['A dónde va']],['Departamento destino',destinoDept],['Producto aproximado',x['Qué llevó aprox.']],['Precio',money(x['Precio aprox. (Bs)'])],
     ['Dirección literal',x['Dirección literal en guía']],['Dirección complementaria',x['Dirección complementaria encontrada']],['Fuente',x['Fuente web teléfono/dirección']],['Observaciones',x.Observaciones]
   ];
-  document.getElementById('detailBody').innerHTML = `<div class="dept-hero mb-3">${deptCard(origenDept)}<span>Destino</span>${deptCard(destinoDept)}</div><div class="row g-3">${fields.map(([k,v])=>`<div class="col-md-6"><div class="detail-box"><div class="modal-label">${esc(k)}</div><div>${k==='Teléfonos rápidos'?v:esc(v||'N/D')}</div></div></div>`).join('')}</div><div class="mt-3 d-flex flex-wrap gap-2">${pdfButton(x)}${x['Google Maps']?`<a class="btn btn-success" target="_blank" href="${esc(x['Google Maps'])}">Abrir ubicación en Google Maps</a>`:''}</div>`;
+  document.getElementById('detailBody').innerHTML = `<div class="dept-hero mb-3">${deptCard(origenDept)}<span>Destino</span>${deptCard(destinoDept)}</div><div class="row g-3">${fields.map(([k,v])=>`<div class="col-md-6"><div class="detail-box"><div class="modal-label">${esc(k)}</div><div>${k==='Teléfonos rápidos'?v:esc(v||'N/D')}</div></div></div>`).join('')}</div><div class="mt-3 d-flex flex-wrap gap-2">${pdfButton(x)}${x['Google Maps']?`<a class="btn btn-success" target="_blank" rel="noopener" href="${esc(x['Google Maps'])}">Abrir ubicación en Google Maps</a>`:''}</div>`;
   detailModal.show();
 }
 function exportCSV(){

@@ -1,0 +1,63 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 842.25 595.499986" width="842.25" height="595.499986" preserveAspectRatio="xMidYMid meet" version="1.1">
+  <title>Nota de envío RODCAZ / Android PC</title>
+
+  <defs>
+    <style>
+      .rc-wordmark { font-family: Arial, "Helvetica Neue", sans-serif; font-weight: 900; font-style: italic; }
+      .rc-tagline { font-family: Arial, "Helvetica Neue", sans-serif; font-weight: 700; letter-spacing: 2px; }
+      .rc-headline { font-family: Impact, "Arial Narrow Bold", "Arial Black", sans-serif; font-weight: 700; }
+      .rc-label { font-family: Arial, "Helvetica Neue", sans-serif; font-weight: 800; }
+      .rc-caption { font-family: Arial, "Helvetica Neue", sans-serif; font-weight: 700; }
+      .rc-fragil { font-family: Impact, "Arial Narrow Bold", "Arial Black", sans-serif; font-weight: 700; }
+    </style>
+  </defs>
+
+  <!-- Fondo -->
+  <rect x="0" y="0" width="842.25" height="595.499986" fill="#ffffff"/>
+
+  <!-- Logo RODCAZ (placeholder de texto: reemplazar por el logo real cuando esté disponible) -->
+  <g transform="translate(18, 18)">
+    <polygon points="0,0 34,0 12,38 0,38" fill="#0d0d0d"/>
+    <polygon points="14,0 46,0 30,38 18,38" fill="#0d0d0d" opacity="0.55"/>
+    <text x="52" y="30" class="rc-wordmark" font-size="30" fill="#0d0d0d">RODCAZ</text>
+    <text x="0" y="52" class="rc-tagline" font-size="9" fill="#0d0d0d">VIVE LA INNOVACIÓN</text>
+  </g>
+
+  <!-- Titular central -->
+  <g class="rc-headline" fill="#0d0d0d" text-anchor="middle" transform="rotate(-1 421 65)">
+    <text x="421" y="55" font-size="42" letter-spacing="1">GRACIAS</text>
+    <text x="421" y="98" font-size="34" letter-spacing="1">POR TU COMPRA</text>
+  </g>
+
+  <!-- Espacio reservado para el logo Android PC (se coloca como <img> superpuesto en impresion.html) -->
+  <!-- Área: x 627-829, y 15-160 aprox. -->
+
+  <!-- Icono Cliente (persona) -->
+  <g transform="translate(0,0)">
+    <path fill="#0d0d0d" d="M 46.210938 163.007812 C 37.871094 163.007812 31.109375 169.785156 31.109375 178.144531 C 31.109375 186.503906 37.871094 193.28125 46.210938 193.28125 C 54.546875 193.28125 61.308594 186.503906 61.308594 178.144531 C 61.308594 169.785156 54.546875 163.007812 46.210938 163.007812 Z M 46.210938 166.957031 C 52.378906 166.957031 57.367188 171.957031 57.367188 178.144531 C 57.367188 184.332031 52.378906 189.332031 46.210938 189.332031 C 40.039062 189.332031 35.050781 184.332031 35.050781 178.144531 C 35.050781 171.957031 40.039062 166.957031 46.210938 166.957031 Z M 46.210938 198.546875 C 35.441406 198.546875 25.464844 204.40625 20.148438 213.753906 C 19.621094 214.675781 19.949219 215.925781 20.933594 216.453125 C 21.261719 216.648438 21.59375 216.714844 21.921875 216.714844 C 22.578125 216.714844 23.296875 216.386719 23.625 215.726562 C 28.222656 207.566406 36.886719 202.496094 46.210938 202.496094 C 55.53125 202.496094 64.195312 207.566406 68.855469 215.726562 C 69.382812 216.648438 70.5625 216.976562 71.546875 216.453125 C 72.46875 215.925781 72.796875 214.738281 72.269531 213.753906 C 66.953125 204.40625 56.976562 198.546875 46.210938 198.546875 Z"/>
+  </g>
+  <text x="84" y="196" class="rc-label" font-size="30" fill="#0d0d0d">Cliente:</text>
+  <line x1="250" y1="211" x2="778" y2="211" stroke="#c9c9c9" stroke-width="1.5" stroke-dasharray="2 4"/>
+
+  <!-- Icono Cel (teléfono) -->
+  <path fill="#0d0d0d" d="M 62.277344 281.015625 L 62.277344 319.132812 L 30.1875 319.132812 L 30.1875 270.90625 L 62.277344 270.90625 Z M 52.464844 327.003906 L 39.996094 327.003906 L 39.996094 323.167969 L 52.464844 323.167969 Z M 39.386719 265.976562 L 53.078125 265.976562 L 53.074219 267.46875 L 39.386719 267.46875 Z M 60.996094 262.28125 L 31.464844 262.28125 C 28.640625 262.28125 26.359375 264.570312 26.359375 267.394531 L 26.359375 327.34375 C 26.359375 330.15625 28.640625 332.449219 31.464844 332.449219 L 60.996094 332.449219 C 63.816406 332.449219 66.105469 330.160156 66.105469 327.34375 L 66.105469 267.394531 C 66.105469 264.570312 63.816406 262.28125 60.996094 262.28125 "/>
+  <text x="84" y="304" class="rc-label" font-size="30" fill="#0d0d0d">Cel:</text>
+  <line x1="180" y1="316" x2="600" y2="316" stroke="#c9c9c9" stroke-width="1.5" stroke-dasharray="2 4"/>
+
+  <!-- Espacio QR (colocar el código real cuando esté disponible; por ahora placeholder visible) -->
+  <g transform="translate(28.765625, 384)">
+    <rect x="0" y="0" width="151.42" height="122" fill="#ffffff" stroke="#0d0d0d" stroke-width="2" stroke-dasharray="6 4"/>
+    <text x="75.7" y="66" text-anchor="middle" class="rc-caption" font-size="16" fill="#9a9a9a">QR</text>
+  </g>
+  <text x="104.4" y="524" text-anchor="middle" class="rc-caption" font-size="12.5" fill="#0d0d0d">Escaneame para más</text>
+  <text x="104.4" y="538" text-anchor="middle" class="rc-caption" font-size="12.5" fill="#0d0d0d">detalles</text>
+
+  <!-- Icono ubicación (Ciudad se sobrepone como campo editable a la derecha) -->
+  <path fill="#0d0d0d" d="M 282.0625 370.75 C 270.476562 370.75 261.089844 380.058594 261.089844 391.539062 C 261.089844 393.449219 261.355469 395.296875 261.839844 397.050781 C 262.265625 398.582031 262.855469 400.042969 263.601562 401.410156 C 263.78125 401.738281 263.972656 402.066406 264.167969 402.382812 L 279.980469 429.53125 C 280.015625 429.589844 280.046875 429.648438 280.082031 429.707031 C 280.519531 430.328125 281.242188 430.734375 282.0625 430.734375 C 282.886719 430.734375 283.609375 430.324219 284.046875 429.699219 L 284.113281 429.582031 L 299.953125 402.390625 L 300.527344 401.40625 C 301.269531 400.042969 301.863281 398.578125 302.285156 397.050781 C 302.773438 395.296875 303.035156 393.449219 303.035156 391.539062 C 303.035156 380.058594 293.648438 370.75 282.0625 370.75 Z M 282.0625 400.253906 C 277.203125 400.253906 273.265625 396.351562 273.265625 391.539062 C 273.265625 386.722656 277.203125 382.820312 282.0625 382.820312 C 286.917969 382.820312 290.855469 386.722656 290.855469 391.539062 C 290.855469 396.351562 286.917969 400.253906 282.0625 400.253906 Z"/>
+
+  <!-- FRAGIL!!!! -->
+  <text x="480" y="490" text-anchor="middle" class="rc-fragil" font-size="58" fill="#ff3d31" letter-spacing="2" transform="rotate(-1 480 470)">FRAGIL!!!!</text>
+
+  <!-- Pie -->
+  <text x="421" y="540" text-anchor="middle" class="rc-caption" font-size="17" fill="#0d0d0d" letter-spacing="0.5">MANEJAR CON CUIDADO - RODCAZ &amp; ANDROIDPC</text>
+</svg>
