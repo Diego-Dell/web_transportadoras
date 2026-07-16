@@ -14,7 +14,7 @@
   <rect x="0" y="0" width="842.25" height="595.499986" fill="#ffffff"/>
 
   <!-- Logo RODCAZ real -->
-  <image x="17" y="15" width="156" height="150" href="/assets/rodcaz-logo.png"/>
+  <image x="17" y="15" width="156" height="150" href="/assets/rodcaz-logo.png?v=2"/>
 
   <!-- Titular central -->
   <g class="rc-headline" fill="#0d0d0d" text-anchor="middle" transform="rotate(-1 421 65)">
